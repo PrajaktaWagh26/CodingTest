@@ -23,7 +23,7 @@ public class LatestForeignExchangeSteps extends ApiRequestAbstraction {
 	RequestSpecification request;
 	Response response;
 	JsonPath jsonPath;
-	private Object error;
+	private String error;
 	private static final Logger log = Logger.getLogger(LatestForeignExchangeSteps.class.getName());
 
 	@Given("^I have the latest foreign exchange api (.+)$")
@@ -85,7 +85,6 @@ public class LatestForeignExchangeSteps extends ApiRequestAbstraction {
 	public void validateResponseForSpecificBase(String base) throws Throwable {
 		jsonPath = getJsonPath(apiRequest);
 		Assert.assertEquals(base, jsonPath.get("base"));
-
 	}
 
 }
