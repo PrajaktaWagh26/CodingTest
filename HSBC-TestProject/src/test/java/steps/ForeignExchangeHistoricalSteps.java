@@ -9,6 +9,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 
 import org.apache.log4j.Logger;
@@ -59,7 +60,11 @@ public class ForeignExchangeHistoricalSteps extends ApiRequestAbstraction {
 	public void validateResponseWhenFutureDateIsGiven() {
 		response = getResponse(apiRequest);
 		jsonPath = getJsonPath(apiRequest);
-		Assert.assertEquals(LocalDate.now(ZoneId.of("UTC")).toString(), jsonPath.getString("date"));
+		if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
+			Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.getString("date"));
+		} else {
+			Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(), jsonPath.getString("date"));
+		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package steps;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Map;
 
@@ -41,7 +42,11 @@ public class LatestForeignExchangeSteps extends ApiRequestAbstraction {
 		jsonPath = getJsonPath(apiRequest);
 		if (response.statusCode() == 200) {
 			Assert.assertEquals(responsecode, response.getStatusCode());
-			Assert.assertEquals(LocalDate.now(ZoneId.of("UTC")).toString(), jsonPath.get("date"));
+			if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
+				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.get("date"));
+			} else {
+				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(), jsonPath.get("date"));
+			}
 		} else {
 			Assert.assertEquals(responsecode, response.getStatusCode());
 			error = jsonPath.get("error");
