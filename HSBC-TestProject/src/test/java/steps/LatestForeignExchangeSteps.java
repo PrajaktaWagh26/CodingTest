@@ -1,5 +1,6 @@
 package steps;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -42,12 +43,17 @@ public class LatestForeignExchangeSteps extends ApiRequestAbstraction {
 		jsonPath = getJsonPath(apiRequest);
 		if (response.statusCode() == 200) {
 			Assert.assertEquals(responsecode, response.getStatusCode());
-			if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
-				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.get("date"));
-			} else {
+			if (LocalDate.now(ZoneId.of("CET")).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) == 0) {
 				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(), jsonPath.get("date"));
+			} else if (LocalDate.now(ZoneId.of("CET")).getDayOfWeek().compareTo(DayOfWeek.SUNDAY) == 0) {
+				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(2).toString(), jsonPath.get("date"));
+			} else {
+				if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
+					Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.get("date"));
+				} else {
+					Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(), jsonPath.get("date"));
+				}
 			}
-		} else {
 			Assert.assertEquals(responsecode, response.getStatusCode());
 			error = jsonPath.get("error");
 			log.error("Incorrect api url provided : " + apiRequest);

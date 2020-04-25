@@ -10,7 +10,7 @@ Feature: I want to test api of foreign exchange reference rates for specific dat
 
     Examples: 
       | api                         | date       | responsecode |
-      | https://api.ratesapi.io/api | 2010-01-12 |          200 |
+      | https://api.ratesapi.io/api | 2020-02-29 |          200 |
 
   @ForeignExchangeApiForDatesandSpecificCurrencies
   Scenario Outline: Validate api of foreign exchange reference rates with given dates for specific currencies

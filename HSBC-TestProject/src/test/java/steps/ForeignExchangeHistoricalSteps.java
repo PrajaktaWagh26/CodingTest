@@ -7,7 +7,7 @@ import cucumber.api.java.en.Then;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -33,7 +33,13 @@ public class ForeignExchangeHistoricalSteps extends ApiRequestAbstraction {
 		response = getResponse(apiRequest);
 		jsonPath = getJsonPath(apiRequest);
 		if (response.getStatusCode() == 200) {
-			Assert.assertEquals(date, jsonPath.getString("date"));
+			if (LocalDate.parse(date).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) == 0) {
+				Assert.assertEquals(LocalDate.parse(date).minusDays(1).toString(), jsonPath.getString("date"));
+			} else if (LocalDate.parse(date).getDayOfWeek().compareTo(DayOfWeek.SUNDAY) == 0) {
+				Assert.assertEquals(LocalDate.parse(date).minusDays(2).toString(), jsonPath.getString("date"));
+			} else {
+				Assert.assertEquals(date, jsonPath.getString("date"));
+			}
 		} else {
 			error = jsonPath.get("error");
 			log.error("Incorrect api url provided : " + apiRequest);
@@ -60,10 +66,17 @@ public class ForeignExchangeHistoricalSteps extends ApiRequestAbstraction {
 	public void validateResponseWhenFutureDateIsGiven() {
 		response = getResponse(apiRequest);
 		jsonPath = getJsonPath(apiRequest);
-		if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
-			Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.getString("date"));
-		} else {
+		if (LocalDate.now(ZoneId.of("CET")).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) == 0) {
 			Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(), jsonPath.getString("date"));
+		} else if (LocalDate.now(ZoneId.of("CET")).getDayOfWeek().compareTo(DayOfWeek.SUNDAY) == 0) {
+			Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(2).toString(), jsonPath.getString("date"));
+		} else {
+			if (LocalTime.now(ZoneId.of("CET")).getHour() >= 16) {
+				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).toString(), jsonPath.getString("date"));
+			} else {
+				Assert.assertEquals(LocalDate.now(ZoneId.of("CET")).minusDays(1).toString(),
+						jsonPath.getString("date"));
+			}
 		}
 	}
 
